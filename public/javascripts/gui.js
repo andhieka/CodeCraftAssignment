@@ -6067,7 +6067,7 @@ IDE_Morph.prototype.shareBoxSettingsMenu = function() {
     menu = new MenuMorph(this);
     menu.addItem(
         'Broadcast Announcement',
-        'showAnnouncementSuccessPopup'
+        'showAnnouncementPopup'
     );
     menu.addLine();
     menu.addItem(
