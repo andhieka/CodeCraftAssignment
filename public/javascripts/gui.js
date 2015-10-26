@@ -1518,7 +1518,6 @@ IDE_Morph.prototype.createShareBoxTitleBarButtons = function () {
     button.fixLayout();
     shareBoxAddMemberButton = button;
 
-
     // add to title bar
     this.shareBoxTitleBarButtons.add(shareBoxSettingsButton);
     this.shareBoxTitleBarButtons.shareBoxSettingsButton = shareBoxSettingsButton;
@@ -6066,6 +6065,11 @@ IDE_Morph.prototype.shareBoxSettingsMenu = function() {
         pos = this.shareBoxTitleBarButtons.shareBoxSettingsButton.bottomLeft();
 
     menu = new MenuMorph(this);
+    menu.addItem(
+        'Broadcast Announcement',
+        'showAnnouncementSuccessPopup'
+    );
+    menu.addLine();
     menu.addItem(
         'View/Edit Members',
         'showViewMembersPopup'
