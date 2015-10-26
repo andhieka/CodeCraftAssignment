@@ -3344,6 +3344,86 @@ IDE_Morph.prototype.showAnnouncementSuccessPopup = function(announcement) {
 
 };
 
+// notifies the member that an announcement is sent
+IDE_Morph.prototype.receiveAnnouncementPopup = function(announcement) {
+    var world = this.world();
+    var myself = this;
+    var popupWidth = 400;
+    var popupHeight = 330;
+
+    if (this.announcementReceivedPopup) {
+        this.announcementReceivedPopup.destroy();
+    }
+    /*
+    if (this.viewMembersPopup) {
+        this.viewMembersPopup.destroy();
+    }
+    */
+    this.announcementReceivedPopup = new DialogBoxMorph();
+    this.announcementReceivedPopup.setExtent(new Point(popupWidth, popupHeight));
+
+    // close dialog button
+    button = new PushButtonMorph(
+        this,
+        null,
+        (String.fromCharCode("0xf00d")),
+        null,
+        null,
+        null,
+        "redCircleIconButton"
+    );
+    button.setRight(this.announcementReceivedPopup.right() - 3);
+    button.setTop(this.announcementReceivedPopup.top() + 2);
+    button.action = function () { myself.announcementReceivedPopup.cancel(); };
+    button.drawNew();
+    button.fixLayout();
+    this.announcementReceivedPopup.add(button);
+
+    // add title
+    this.announcementReceivedPopup.labelString = "You have received an announcement!";
+    this.announcementReceivedPopup.createLabel();
+
+    // success image
+    var successImage = new Morph();
+    successImage.texture = 'images/notification.png';
+    successImage.drawNew = function () {
+        this.image = newCanvas(this.extent());
+        var context = this.image.getContext('2d');
+        var picBgColor = myself.announcementReceivedPopup.color;
+        context.fillStyle = picBgColor.toString();
+        context.fillRect(0, 0, this.width(), this.height());
+        if (this.texture) {
+            this.drawTexture(this.texture);
+        }
+    };
+
+    successImage.setExtent(new Point(128, 128));
+    successImage.setCenter(this.announcementReceivedPopup.center());
+    successImage.setTop(this.announcementReceivedPopup.top() + 40);
+    this.announcementReceivedPopup.add(successImage);
+
+    // success message
+    txt = new TextMorph("You've received an announcement:\n " + announcement);
+    txt.setCenter(this.announcementReceivedPopup.center());
+    txt.setTop(successImage.bottom() + 20);
+    this.announcementReceivedPopup.add(txt);
+    txt.drawNew();
+
+    // "got it!" button, closes the dialog.
+    okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
+    okButton.setCenter(this.announcementReceivedPopup.center());
+    okButton.setBottom(this.announcementReceivedPopup.bottom() - 10);
+    okButton.action = function() { myself.announcementReceivedPopup.cancel(); };
+    this.announcementReceivedPopup.add(okButton);
+
+    // popup
+    this.announcementReceivedPopup.drawNew();
+    this.announcementReceivedPopup.fixLayout();
+    this.announcementReceivedPopup.popUp(world);
+
+};
+
+
 
 // * * * * * * * * * Accept request Popup * * * * * * * * * * * * * * * * *
 
@@ -6243,6 +6323,10 @@ IDE_Morph.prototype.shareBoxSettingsMenu = function() {
     menu.addItem(
         'Broadcast Announcement',
         'showAnnouncementPopup'
+    );
+    menu.addItem(
+        'Receive Announcement',
+        'receiveAnnouncementPopup'
     );
     menu.addLine();
     menu.addItem(
