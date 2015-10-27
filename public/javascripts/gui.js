@@ -3344,6 +3344,83 @@ IDE_Morph.prototype.showAnnouncementSuccessPopup = function(announcement) {
 
 };
 
+// Notifies the creator of the group that all the members have read and closed the announcement
+IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(username) {
+    var world = this.world();
+    var myself = this;
+    var popupWidth = 400;
+    var popupHeight = 330;
+
+    if (this.announcementReadByAllPopup) {
+        this.announcementReadByAllPopup.destroy();
+    }
+    if (this.viewMembersPopup) {
+        this.viewMembersPopup.destroy();
+    }
+    this.announcementReadByAllPopup = new DialogBoxMorph();
+    this.announcementReadByAllPopup.setExtent(new Point(popupWidth, popupHeight));
+
+    // close dialog button
+    button = new PushButtonMorph(
+        this,
+        null,
+        (String.fromCharCode("0xf00d")),
+        null,
+        null,
+        null,
+        "redCircleIconButton"
+    );
+    button.setRight(this.announcementReadByAllPopup.right() - 3);
+    button.setTop(this.announcementReadByAllPopup.top() + 2);
+    button.action = function () { myself.announcementReadByAllPopup.cancel(); };
+    button.drawNew();
+    button.fixLayout();
+    this.announcementReadByAllPopup.add(button);
+
+    // add title
+    this.announcementReadByAllPopup.labelString = "All have read your announcement!";
+    this.announcementReadByAllPopup.createLabel();
+
+    // success image
+    var successImage = new Morph();
+    successImage.texture = 'images/success.png';
+    successImage.drawNew = function () {
+        this.image = newCanvas(this.extent());
+        var context = this.image.getContext('2d');
+        var picBgColor = myself.announcementReadByAllPopup.color;
+        context.fillStyle = picBgColor.toString();
+        context.fillRect(0, 0, this.width(), this.height());
+        if (this.texture) {
+            this.drawTexture(this.texture);
+        }
+    };
+
+    successImage.setExtent(new Point(128, 128));
+    successImage.setCenter(this.announcementReadByAllPopup.center());
+    successImage.setTop(this.announcementReadByAllPopup.top() + 40);
+    this.announcementReadByAllPopup.add(successImage);
+
+    // success message
+    txt = new TextMorph("All the members in this group have read your announcement!");
+    txt.setCenter(this.announcementReadByAllPopup.center());
+    txt.setTop(successImage.bottom() + 20);
+    this.announcementReadByAllPopup.add(txt);
+    txt.drawNew();
+
+    // "got it!" button, closes the dialog.
+    okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
+    okButton.setCenter(this.announcementReadByAllPopup.center());
+    okButton.setBottom(this.announcementReadByAllPopup.bottom() - 10);
+    okButton.action = function() { myself.announcementReadByAllPopup.cancel(); };
+    this.announcementReadByAllPopup.add(okButton);
+
+    // popup
+    this.announcementReadByAllPopup.drawNew();
+    this.announcementReadByAllPopup.fixLayout();
+    this.announcementReadByAllPopup.popUp(world);
+
+};
+
 // notifies the member that an announcement is sent
 IDE_Morph.prototype.receiveAnnouncementPopup = function(announcement) {
     var world = this.world();
@@ -6323,10 +6400,6 @@ IDE_Morph.prototype.shareBoxSettingsMenu = function() {
     menu.addItem(
         'Broadcast Announcement',
         'showAnnouncementPopup'
-    );
-    menu.addItem(
-        'Receive Announcement',
-        'receiveAnnouncementPopup'
     );
     menu.addLine();
     menu.addItem(
