@@ -3514,12 +3514,11 @@ IDE_Morph.prototype.receiveAnnouncementPopup = function(data) {
     okButton.setBottom(this.announcementReceivedPopup.bottom() - 10);
     okButton.action = function() {
         console.log("Announcement box closing...");
-        myself.sharer.socket.emit('ANNOUNCE_SHAREBOX_CLOSE', socketData);
-        console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX_CLOSE");
         var socketData = {
             'announcementId': announcementId
         };
-        console.log(JSON.stringify(socketData));
+        myself.sharer.socket.emit('ANNOUNCE_SHAREBOX_CLOSE', socketData);
+        console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX_CLOSE: " + JSON.stringify(socketData));
         myself.announcementReceivedPopup.cancel();
     };
     this.announcementReceivedPopup.add(okButton);
