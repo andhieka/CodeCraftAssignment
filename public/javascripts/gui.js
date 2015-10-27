@@ -1792,6 +1792,16 @@ IDE_Morph.makeSocket = function (myself, shareboxId) {
         ide.shareBox.updateList();
     })
 
+    sharer.socket.on('ANNOUNCE_SHAREBOX_BROADCAST', function(data) {
+        console.log('ANNOUNCE_SHAREBOX_BROADCAST');
+        myself.receiveAnnouncementPopup(data);
+    })
+
+    sharer.socket.on('ANNOUNCE_SHAREBOX_ALL_CLOSED', function(data) {
+        console.log('ANNOUNCE_SHAREBOX_ALL_CLOSED');
+        myself.showAnnouncementReadByAllPopup(data);
+    })
+
     // When I receive data, I parse objectData and add it to my data list
     sharer.socket.on('UPDATE_SHAREBOX_VIEW', function (objectData) {
         // Clean up shareBoxPlaceholderSprite
@@ -3244,8 +3254,8 @@ IDE_Morph.prototype.showAnnouncementPopup = function() {
             //var result = "group_full"; // EITHER: success, connection_error, user_offline, user_nonexistent, user_has_group, group_full
             var result = "success";
             if (result === "success") {
-                socketData = { room: myself.shareboxId, announcement: announcement};
-                myself.sharer.socket.emit('ANNOUNCE_SHAREBOX', { room: myself.shareboxId, announcement: announcement, ownerId: tempIdentifier});
+                socketData = { room: myself.shareboxId, announcement: announcement };
+                myself.sharer.socket.emit('ANNOUNCE_SHAREBOX', socketData);
                 console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX: " + JSON.stringify(socketData));
                 myself.announcementPopup.cancel();
                 myself.showAnnouncementSuccessPopup(announcement);
@@ -3345,7 +3355,9 @@ IDE_Morph.prototype.showAnnouncementSuccessPopup = function(announcement) {
 };
 
 // Notifies the creator of the group that all the members have read and closed the announcement
-IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(username) {
+IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(data) {
+    var announcement = data.announcement;
+
     var world = this.world();
     var myself = this;
     var popupWidth = 400;
@@ -3400,8 +3412,15 @@ IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(username) {
     successImage.setTop(this.announcementReadByAllPopup.top() + 40);
     this.announcementReadByAllPopup.add(successImage);
 
+    var shortAnnouncement = announcement;
+    if (shortAnnouncement.length > 10) {
+        shortAnnouncement = shortAnnouncement.substring(0, 10) + "...";
+    }
     // success message
-    txt = new TextMorph("All the members in this group have read your announcement!");
+    txt = new TextMorph("All the members in this group have read your announcement!" +
+        "\n\n&ldquot;" +
+        shortAnnouncement +
+        "&rdquot;");
     txt.setCenter(this.announcementReadByAllPopup.center());
     txt.setTop(successImage.bottom() + 20);
     this.announcementReadByAllPopup.add(txt);
@@ -3422,7 +3441,10 @@ IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(username) {
 };
 
 // notifies the member that an announcement is sent
-IDE_Morph.prototype.receiveAnnouncementPopup = function(announcement) {
+IDE_Morph.prototype.receiveAnnouncementPopup = function(data) {
+    var announcement = data.announcement;
+    var announcementId = data.announcementId;
+
     var world = this.world();
     var myself = this;
     var popupWidth = 400;
@@ -3490,7 +3512,16 @@ IDE_Morph.prototype.receiveAnnouncementPopup = function(announcement) {
     okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
     okButton.setCenter(this.announcementReceivedPopup.center());
     okButton.setBottom(this.announcementReceivedPopup.bottom() - 10);
-    okButton.action = function() { myself.announcementReceivedPopup.cancel(); };
+    okButton.action = function() {
+        console.log("Announcement box closing...");
+        myself.sharer.socket.emit('ANNOUNCE_SHAREBOX_CLOSE', socketData);
+        console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX_CLOSE");
+        var socketData = {
+            'announcementId': announcementId
+        };
+        console.log(JSON.stringify(socketData));
+        myself.announcementReceivedPopup.cancel();
+    };
     this.announcementReceivedPopup.add(okButton);
 
     // popup
