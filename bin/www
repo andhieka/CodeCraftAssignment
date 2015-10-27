@@ -9,6 +9,9 @@ var debug = require('debug')('codecraft-socket:server');
 var http = require('http');
 var _ = require('underscore');
 
+var unreadCount = [];
+var senderIds = [];
+var announcementId = 0;
 
 /**
  * Get port from environment and store in Express.
@@ -108,6 +111,39 @@ io.sockets.on('connection', function(socket){
 
 
 		});
+
+		socket.on('ANNOUNCE_SHAREBOX', function(data){
+			var roomInfo = clients[data.room];
+			if(!(_.isUndefined(roomInfo))){
+				var isOwner = roomInfo.owner.socketId === socket.id
+				if (isOwner) {
+					announcementId++;
+					senderIds[announcementId] = socket.id;
+					socket.to(data.room).emit('ANNOUNCE_SHAREBOX_BROADCAST', {
+						"senderId": socket.id,
+						"message": data.message,
+						"announcementId": announcementId
+					});
+					socket.emit('ANNOUNCEMENT_ID', { 'announcementId': announcementId });
+				}
+			}
+			io.emit('SOCKET_CONTROL_UPDATE', clients);
+		});
+
+		socket.on('ANNOUNCE_SHAREBOX_CLOSE', function(data) {
+			var announcementId = data.announcementId;
+			if (!(_.isUndefined(unreadCount['announcementId']) && unreadCount['announcementId'] > 0) {
+				unreadCount['announcementId']--;
+				if(unreadCount['announcementId'] === 0) {
+					var senderId = senderIds[announcementId];
+					io.sockets.connected(senderId).emit('ANNOUNCE_SHAREBOX_ALL_CLOSED', {
+						'announcementId': announcementId
+					});
+				}
+			}
+		});
+
+
 
 		socket.on('LEAVE_SHAREBOX', function(data){
 			console.log("left")
