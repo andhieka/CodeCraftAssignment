@@ -3265,7 +3265,7 @@ IDE_Morph.prototype.showAnnouncementPopup = function() {
     this.announcementPopup.popUp(world);
 };
 
-// notifies the user that new member has been added successfully.
+// notifies the user that new announcement has been sent successfully.
 IDE_Morph.prototype.showAnnouncementSuccessPopup = function(announcement) {
     var world = this.world();
     var myself = this;
@@ -3499,6 +3499,7 @@ IDE_Morph.prototype.receiveAnnouncementPopup = function(announcement) {
     this.announcementReceivedPopup.popUp(world);
 
 };
+
 
 
 
