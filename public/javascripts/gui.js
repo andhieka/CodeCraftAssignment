@@ -3418,9 +3418,9 @@ IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(data) {
     }
     // success message
     txt = new TextMorph("All the members in this group have read your announcement!" +
-        "\n\n&ldquot;" +
+        "\n\n'" +
         shortAnnouncement +
-        "&rdquot;");
+        "'");
     txt.setCenter(this.announcementReadByAllPopup.center());
     txt.setTop(successImage.bottom() + 20);
     this.announcementReadByAllPopup.add(txt);

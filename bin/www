@@ -117,7 +117,6 @@ io.sockets.on('connection', function(socket){
 				data.room + 
 				" from socket id " + socket.id);
 			var roomInfo = clients[data.room];
-			console.log(roomInfo.members.length);
 			if(!(_.isUndefined(roomInfo))){
 				var isOwner = roomInfo.owner.socketId === socket.id
 				if (isOwner) {
@@ -137,18 +136,15 @@ io.sockets.on('connection', function(socket){
 
 		socket.on('ANNOUNCE_SHAREBOX_CLOSE', function(data) {
 			console.log('ANNOUNCE_SHAREBOX_CLOSE');
-			console.log("Data: " + data);
 			var announcementId = data['announcementId'];
 			console.log('announcementId = ' + announcementId);
-			console.log(unreadCount);
 			
 			if (!(_.isUndefined(unreadCount[announcementId]) && unreadCount[announcementId] > 0)) {
 				unreadCount[announcementId]--;
 				if(unreadCount[announcementId] === 0) {
 					var senderId = senderIds[announcementId];
-					console.log(senderId);
-					io.sockets.connected(senderId).emit('ANNOUNCE_SHAREBOX_ALL_CLOSED', {
-						'announcementId': announcementId
+					io.sockets.connected[senderId].emit('ANNOUNCE_SHAREBOX_ALL_CLOSED', {
+						'announcement': announcementMessage[announcementId]
 					});
 				}
 			}
