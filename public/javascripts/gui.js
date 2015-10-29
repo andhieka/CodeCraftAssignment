@@ -3185,348 +3185,365 @@ IDE_Morph.prototype.showAddMemberFailurePopup = function(username, errorCause) {
 
 // xinni: Popup when creator chooses "Broadcast Announcement"
 IDE_Morph.prototype.showAnnouncementPopup = function() {
-    var world = this.world();
     var myself = this;
-    var popupWidth = 400;
-    var popupHeight = 300;
+    var announcement = prompt("Please enter your announcement");
+    socketData = { room: myself.shareboxId, announcement: announcement };
+    myself.sharer.socket.emit('ANNOUNCE_SHAREBOX', socketData);
+    console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX: " + JSON.stringify(socketData));
+    myself.showAnnouncementSuccessPopup(announcement);
+    // var world = this.world();
+    // var myself = this;
+    // var popupWidth = 400;
+    // var popupHeight = 300;
 
-    if (this.announcementPopup) {
-        this.announcementPopup.destroy();
-    }
-    this.announcementPopup = new DialogBoxMorph();
-    this.announcementPopup.setExtent(new Point(popupWidth, popupHeight));
+    // if (this.announcementPopup) {
+    //     this.announcementPopup.destroy();
+    // }
+    // this.announcementPopup = new DialogBoxMorph();
+    // this.announcementPopup.setExtent(new Point(popupWidth, popupHeight));
 
-    // close dialog button
-    button = new PushButtonMorph(
-        this,
-        null,
-        (String.fromCharCode("0xf00d")),
-        null,
-        null,
-        null,
-        "redCircleIconButton"
-    );
+    // // close dialog button
+    // button = new PushButtonMorph(
+    //     this,
+    //     null,
+    //     (String.fromCharCode("0xf00d")),
+    //     null,
+    //     null,
+    //     null,
+    //     "redCircleIconButton"
+    // );
 
-    button.setRight(this.announcementPopup.right() - 3);
-    button.setTop(this.announcementPopup.top() + 2);
-    button.action = function () { myself.announcementPopup.cancel(); };
-    button.drawNew();
-    button.fixLayout();
-    this.announcementPopup.add(button);
+    // button.setRight(this.announcementPopup.right() - 3);
+    // button.setTop(this.announcementPopup.top() + 2);
+    // button.action = function () { myself.announcementPopup.cancel(); };
+    // button.drawNew();
+    // button.fixLayout();
+    // this.announcementPopup.add(button);
 
-    // the text input box
-    var announcementInput = new InputFieldMorph();
-    announcementInput.setWidth(200);
-    announcementInput.setCenter(myself.announcementPopup.center());
-    announcementInput.fontSize = 15;
-    announcementInput.typeInPadding = 4;
-    announcementInput.fixLayout();
-    announcementInput.drawNew();
-    this.announcementPopup.add(announcementInput);
+    // // the text input box
+    // var announcementInput = new InputFieldMorph();
+    // announcementInput.setWidth(200);
+    // announcementInput.setCenter(myself.announcementPopup.center());
+    // announcementInput.fontSize = 15;
+    // announcementInput.typeInPadding = 4;
+    // announcementInput.fixLayout();
+    // announcementInput.drawNew();
+    // this.announcementPopup.add(announcementInput);
 
-    // "Add" Button
-    addButton = new PushButtonMorph(null, null, "Send Announcement", null, null, null, "green");
-    addButton.setCenter(myself.announcementPopup.center());
-    addButton.setTop(announcementInput.bottom() + 10);
-    addButton.action = function () {
-        // get the announcement message from the input
-        var announcement = announcementInput.getValue();
-        var txtColor = new Color(204, 0, 0);
-
-
-        if (announcement.length <= 0) {
-            // show error message for blank announcement
-            if (this.txt) {
-                this.txt.destroy();
-            }
-            this.txt = new TextMorph("Please enter an announcement message. Messages cannot be empty.");
-            this.txt.setColor(txtColor);
-            this.txt.setCenter(myself.announcementPopup.center());
-            this.txt.setTop(addButton.bottom() + 20);
-            myself.announcementPopup.add(this.txt);
-            this.txt.drawNew();
-            myself.announcementPopup.fixLayout();
-            myself.announcementPopup.drawNew();
-
-        } else {
-            // add member to pending members, and feedback result to the user (success/fail)
-            // this result value is returned from an internal add member function (NOT ADDED YET)
-            //var result = "group_full"; // EITHER: success, connection_error, user_offline, user_nonexistent, user_has_group, group_full
-            var result = "success";
-            if (result === "success") {
-                socketData = { room: myself.shareboxId, announcement: announcement };
-                myself.sharer.socket.emit('ANNOUNCE_SHAREBOX', socketData);
-                console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX: " + JSON.stringify(socketData));
-                myself.announcementPopup.cancel();
-                myself.showAnnouncementSuccessPopup(announcement);
-            }
-        }
-    };
-    this.announcementPopup.add(addButton);
+    // // "Add" Button
+    // addButton = new PushButtonMorph(null, null, "Send Announcement", null, null, null, "green");
+    // addButton.setCenter(myself.announcementPopup.center());
+    // addButton.setTop(announcementInput.bottom() + 10);
+    // addButton.action = function () {
+    //     // get the announcement message from the input
+    //     var announcement = announcementInput.getValue();
+    //     var txtColor = new Color(204, 0, 0);
 
 
-    // add title
-    this.announcementPopup.labelString = "Send an announcement";
-    this.announcementPopup.createLabel();
+    //     if (announcement.length <= 0) {
+    //         // show error message for blank announcement
+    //         if (this.txt) {
+    //             this.txt.destroy();
+    //         }
+    //         this.txt = new TextMorph("Please enter an announcement message. Messages cannot be empty.");
+    //         this.txt.setColor(txtColor);
+    //         this.txt.setCenter(myself.announcementPopup.center());
+    //         this.txt.setTop(addButton.bottom() + 20);
+    //         myself.announcementPopup.add(this.txt);
+    //         this.txt.drawNew();
+    //         myself.announcementPopup.fixLayout();
+    //         myself.announcementPopup.drawNew();
 
-    // popup
-    this.announcementPopup.drawNew();
-    this.announcementPopup.fixLayout();
-    this.announcementPopup.popUp(world);
+    //     } else {
+    //         // add member to pending members, and feedback result to the user (success/fail)
+    //         // this result value is returned from an internal add member function (NOT ADDED YET)
+    //         //var result = "group_full"; // EITHER: success, connection_error, user_offline, user_nonexistent, user_has_group, group_full
+    //         var result = "success";
+    //         if (result === "success") {
+    //             socketData = { room: myself.shareboxId, announcement: announcement };
+    //             myself.sharer.socket.emit('ANNOUNCE_SHAREBOX', socketData);
+    //             console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX: " + JSON.stringify(socketData));
+    //             myself.announcementPopup.cancel();
+    //             myself.showAnnouncementSuccessPopup(announcement);
+    //         }
+    //     }
+    // };
+    // this.announcementPopup.add(addButton);
+
+
+    // // add title
+    // this.announcementPopup.labelString = "Send an announcement";
+    // this.announcementPopup.createLabel();
+
+    // // popup
+    // this.announcementPopup.drawNew();
+    // this.announcementPopup.fixLayout();
+    // this.announcementPopup.popUp(world);
 };
 
 // notifies the user that new announcement has been sent successfully.
 IDE_Morph.prototype.showAnnouncementSuccessPopup = function(announcement) {
-    var world = this.world();
-    var myself = this;
-    var popupWidth = 400;
-    var popupHeight = 330;
+    alert(announcement);
+    // var world = this.world();
+    // var myself = this;
+    // var popupWidth = 400;
+    // var popupHeight = 330;
 
-    if (this.announcementSuccessPopup) {
-        this.announcementSuccessPopup.destroy();
-    }
-    /*
-    if (this.viewMembersPopup) {
-        this.viewMembersPopup.destroy();
-    }
-    */
-    this.announcementSuccessPopup = new DialogBoxMorph();
-    this.announcementSuccessPopup.setExtent(new Point(popupWidth, popupHeight));
+    // if (this.announcementSuccessPopup) {
+    //     this.announcementSuccessPopup.destroy();
+    // }
+    // /*
+    // if (this.viewMembersPopup) {
+    //     this.viewMembersPopup.destroy();
+    // }
+    // */
+    // this.announcementSuccessPopup = new DialogBoxMorph();
+    // this.announcementSuccessPopup.setExtent(new Point(popupWidth, popupHeight));
 
-    // close dialog button
-    button = new PushButtonMorph(
-        this,
-        null,
-        (String.fromCharCode("0xf00d")),
-        null,
-        null,
-        null,
-        "redCircleIconButton"
-    );
-    button.setRight(this.announcementSuccessPopup.right() - 3);
-    button.setTop(this.announcementSuccessPopup.top() + 2);
-    button.action = function () { myself.announcementSuccessPopup.cancel(); };
-    button.drawNew();
-    button.fixLayout();
-    this.announcementSuccessPopup.add(button);
+    // // close dialog button
+    // button = new PushButtonMorph(
+    //     this,
+    //     null,
+    //     (String.fromCharCode("0xf00d")),
+    //     null,
+    //     null,
+    //     null,
+    //     "redCircleIconButton"
+    // );
+    // button.setRight(this.announcementSuccessPopup.right() - 3);
+    // button.setTop(this.announcementSuccessPopup.top() + 2);
+    // button.action = function () { myself.announcementSuccessPopup.cancel(); };
+    // button.drawNew();
+    // button.fixLayout();
+    // this.announcementSuccessPopup.add(button);
 
-    // add title
-    this.announcementSuccessPopup.labelString = "A message sent to all members!";
-    this.announcementSuccessPopup.createLabel();
+    // // add title
+    // this.announcementSuccessPopup.labelString = "A message sent to all members!";
+    // this.announcementSuccessPopup.createLabel();
 
-    // success image
-    var successImage = new Morph();
-    successImage.texture = 'images/success.png';
-    successImage.drawNew = function () {
-        this.image = newCanvas(this.extent());
-        var context = this.image.getContext('2d');
-        var picBgColor = myself.announcementSuccessPopup.color;
-        context.fillStyle = picBgColor.toString();
-        context.fillRect(0, 0, this.width(), this.height());
-        if (this.texture) {
-            this.drawTexture(this.texture);
-        }
-    };
+    // // success image
+    // var successImage = new Morph();
+    // successImage.texture = 'images/success.png';
+    // successImage.drawNew = function () {
+    //     this.image = newCanvas(this.extent());
+    //     var context = this.image.getContext('2d');
+    //     var picBgColor = myself.announcementSuccessPopup.color;
+    //     context.fillStyle = picBgColor.toString();
+    //     context.fillRect(0, 0, this.width(), this.height());
+    //     if (this.texture) {
+    //         this.drawTexture(this.texture);
+    //     }
+    // };
 
-    successImage.setExtent(new Point(128, 128));
-    successImage.setCenter(this.announcementSuccessPopup.center());
-    successImage.setTop(this.announcementSuccessPopup.top() + 40);
-    this.announcementSuccessPopup.add(successImage);
+    // successImage.setExtent(new Point(128, 128));
+    // successImage.setCenter(this.announcementSuccessPopup.center());
+    // successImage.setTop(this.announcementSuccessPopup.top() + 40);
+    // this.announcementSuccessPopup.add(successImage);
 
-    // success message
-    txt = new TextMorph("You've sent the message to all members in the sharebox.");
-    txt.setCenter(this.announcementSuccessPopup.center());
-    txt.setTop(successImage.bottom() + 20);
-    this.announcementSuccessPopup.add(txt);
-    txt.drawNew();
+    // // success message
+    // txt = new TextMorph("You've sent the message to all members in the sharebox.");
+    // txt.setCenter(this.announcementSuccessPopup.center());
+    // txt.setTop(successImage.bottom() + 20);
+    // this.announcementSuccessPopup.add(txt);
+    // txt.drawNew();
 
-    // "got it!" button, closes the dialog.
-    okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
-    okButton.setCenter(this.announcementSuccessPopup.center());
-    okButton.setBottom(this.announcementSuccessPopup.bottom() - 10);
-    okButton.action = function() { myself.announcementSuccessPopup.cancel(); };
-    this.announcementSuccessPopup.add(okButton);
+    // // "got it!" button, closes the dialog.
+    // okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
+    // okButton.setCenter(this.announcementSuccessPopup.center());
+    // okButton.setBottom(this.announcementSuccessPopup.bottom() - 10);
+    // okButton.action = function() { myself.announcementSuccessPopup.cancel(); };
+    // this.announcementSuccessPopup.add(okButton);
 
-    // popup
-    this.announcementSuccessPopup.drawNew();
-    this.announcementSuccessPopup.fixLayout();
-    this.announcementSuccessPopup.popUp(world);
+    // // popup
+    // this.announcementSuccessPopup.drawNew();
+    // this.announcementSuccessPopup.fixLayout();
+    // this.announcementSuccessPopup.popUp(world);
 
 };
 
 // Notifies the creator of the group that all the members have read and closed the announcement
 IDE_Morph.prototype.showAnnouncementReadByAllPopup = function(data) {
     var announcement = data.announcement;
+    alert("All have read your announcement!\nThis is the your announcement:\n" + announcement);
 
-    var world = this.world();
-    var myself = this;
-    var popupWidth = 400;
-    var popupHeight = 330;
+    // var world = this.world();
+    // var myself = this;
+    // var popupWidth = 400;
+    // var popupHeight = 330;
 
-    if (this.announcementReadByAllPopup) {
-        this.announcementReadByAllPopup.destroy();
-    }
-    if (this.viewMembersPopup) {
-        this.viewMembersPopup.destroy();
-    }
-    this.announcementReadByAllPopup = new DialogBoxMorph();
-    this.announcementReadByAllPopup.setExtent(new Point(popupWidth, popupHeight));
+    // if (this.announcementReadByAllPopup) {
+    //     this.announcementReadByAllPopup.destroy();
+    // }
+    // if (this.viewMembersPopup) {
+    //     this.viewMembersPopup.destroy();
+    // }
+    // this.announcementReadByAllPopup = new DialogBoxMorph();
+    // this.announcementReadByAllPopup.setExtent(new Point(popupWidth, popupHeight));
 
-    // close dialog button
-    button = new PushButtonMorph(
-        this,
-        null,
-        (String.fromCharCode("0xf00d")),
-        null,
-        null,
-        null,
-        "redCircleIconButton"
-    );
-    button.setRight(this.announcementReadByAllPopup.right() - 3);
-    button.setTop(this.announcementReadByAllPopup.top() + 2);
-    button.action = function () { myself.announcementReadByAllPopup.cancel(); };
-    button.drawNew();
-    button.fixLayout();
-    this.announcementReadByAllPopup.add(button);
+    // // close dialog button
+    // button = new PushButtonMorph(
+    //     this,
+    //     null,
+    //     (String.fromCharCode("0xf00d")),
+    //     null,
+    //     null,
+    //     null,
+    //     "redCircleIconButton"
+    // );
+    // button.setRight(this.announcementReadByAllPopup.right() - 3);
+    // button.setTop(this.announcementReadByAllPopup.top() + 2);
+    // button.action = function () { myself.announcementReadByAllPopup.cancel(); };
+    // button.drawNew();
+    // button.fixLayout();
+    // this.announcementReadByAllPopup.add(button);
 
-    // add title
-    this.announcementReadByAllPopup.labelString = "All have read your announcement!";
-    this.announcementReadByAllPopup.createLabel();
+    // // add title
+    // this.announcementReadByAllPopup.labelString = "All have read your announcement!";
+    // this.announcementReadByAllPopup.createLabel();
 
-    // success image
-    var successImage = new Morph();
-    successImage.texture = 'images/success.png';
-    successImage.drawNew = function () {
-        this.image = newCanvas(this.extent());
-        var context = this.image.getContext('2d');
-        var picBgColor = myself.announcementReadByAllPopup.color;
-        context.fillStyle = picBgColor.toString();
-        context.fillRect(0, 0, this.width(), this.height());
-        if (this.texture) {
-            this.drawTexture(this.texture);
-        }
-    };
+    // // success image
+    // var successImage = new Morph();
+    // successImage.texture = 'images/success.png';
+    // successImage.drawNew = function () {
+    //     this.image = newCanvas(this.extent());
+    //     var context = this.image.getContext('2d');
+    //     var picBgColor = myself.announcementReadByAllPopup.color;
+    //     context.fillStyle = picBgColor.toString();
+    //     context.fillRect(0, 0, this.width(), this.height());
+    //     if (this.texture) {
+    //         this.drawTexture(this.texture);
+    //     }
+    // };
 
-    successImage.setExtent(new Point(128, 128));
-    successImage.setCenter(this.announcementReadByAllPopup.center());
-    successImage.setTop(this.announcementReadByAllPopup.top() + 40);
-    this.announcementReadByAllPopup.add(successImage);
+    // successImage.setExtent(new Point(128, 128));
+    // successImage.setCenter(this.announcementReadByAllPopup.center());
+    // successImage.setTop(this.announcementReadByAllPopup.top() + 40);
+    // this.announcementReadByAllPopup.add(successImage);
 
-    var shortAnnouncement = announcement;
-    if (shortAnnouncement.length > 10) {
-        shortAnnouncement = shortAnnouncement.substring(0, 10) + "...";
-    }
-    // success message
-    txt = new TextMorph("All the members in this group have read your announcement!" +
-        "\n\n'" +
-        shortAnnouncement +
-        "'");
-    txt.setCenter(this.announcementReadByAllPopup.center());
-    txt.setTop(successImage.bottom() + 20);
-    this.announcementReadByAllPopup.add(txt);
-    txt.drawNew();
+    // var shortAnnouncement = announcement;
+    // if (shortAnnouncement.length > 10) {
+    //     shortAnnouncement = shortAnnouncement.substring(0, 10) + "...";
+    // }
+    // // success message
+    // txt = new TextMorph("All the members in this group have read your announcement!" +
+    //     "\n\n'" +
+    //     shortAnnouncement +
+    //     "'");
+    // txt.setCenter(this.announcementReadByAllPopup.center());
+    // txt.setTop(successImage.bottom() + 20);
+    // this.announcementReadByAllPopup.add(txt);
+    // txt.drawNew();
 
-    // "got it!" button, closes the dialog.
-    okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
-    okButton.setCenter(this.announcementReadByAllPopup.center());
-    okButton.setBottom(this.announcementReadByAllPopup.bottom() - 10);
-    okButton.action = function() { myself.announcementReadByAllPopup.cancel(); };
-    this.announcementReadByAllPopup.add(okButton);
+    // // "got it!" button, closes the dialog.
+    // okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
+    // okButton.setCenter(this.announcementReadByAllPopup.center());
+    // okButton.setBottom(this.announcementReadByAllPopup.bottom() - 10);
+    // okButton.action = function() { myself.announcementReadByAllPopup.cancel(); };
+    // this.announcementReadByAllPopup.add(okButton);
 
-    // popup
-    this.announcementReadByAllPopup.drawNew();
-    this.announcementReadByAllPopup.fixLayout();
-    this.announcementReadByAllPopup.popUp(world);
+    // // popup
+    // this.announcementReadByAllPopup.drawNew();
+    // this.announcementReadByAllPopup.fixLayout();
+    // this.announcementReadByAllPopup.popUp(world);
 
 };
 
 // notifies the member that an announcement is sent
 IDE_Morph.prototype.receiveAnnouncementPopup = function(data) {
+    var myself = this;
     var announcement = data.announcement;
     var announcementId = data.announcementId;
 
-    var world = this.world();
-    var myself = this;
-    var popupWidth = 400;
-    var popupHeight = 330;
+    alert(announcement);
 
-    if (this.announcementReceivedPopup) {
-        this.announcementReceivedPopup.destroy();
-    }
-    /*
-    if (this.viewMembersPopup) {
-        this.viewMembersPopup.destroy();
-    }
-    */
-    this.announcementReceivedPopup = new DialogBoxMorph();
-    this.announcementReceivedPopup.setExtent(new Point(popupWidth, popupHeight));
+    var socketData = { 'announcementId': announcementId };
+    myself.sharer.socket.emit('ANNOUNCE_SHAREBOX_CLOSE', socketData);
+    console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX_CLOSE: " + JSON.stringify(socketData));
+    
+    // myself.announcementReceivedPopup.cancel();
 
-    // close dialog button
-    button = new PushButtonMorph(
-        this,
-        null,
-        (String.fromCharCode("0xf00d")),
-        null,
-        null,
-        null,
-        "redCircleIconButton"
-    );
-    button.setRight(this.announcementReceivedPopup.right() - 3);
-    button.setTop(this.announcementReceivedPopup.top() + 2);
-    button.action = function () { myself.announcementReceivedPopup.cancel(); };
-    button.drawNew();
-    button.fixLayout();
-    this.announcementReceivedPopup.add(button);
+    // var world = this.world();
+    // var myself = this;
+    // var popupWidth = 400;
+    // var popupHeight = 330;
 
-    // add title
-    this.announcementReceivedPopup.labelString = "You have received an announcement!";
-    this.announcementReceivedPopup.createLabel();
+    // if (this.announcementReceivedPopup) {
+    //     this.announcementReceivedPopup.destroy();
+    // }
+    // /*
+    // if (this.viewMembersPopup) {
+    //     this.viewMembersPopup.destroy();
+    // }
+    // */
+    // this.announcementReceivedPopup = new DialogBoxMorph();
+    // this.announcementReceivedPopup.setExtent(new Point(popupWidth, popupHeight));
 
-    // success image
-    var successImage = new Morph();
-    successImage.texture = 'images/notification.png';
-    successImage.drawNew = function () {
-        this.image = newCanvas(this.extent());
-        var context = this.image.getContext('2d');
-        var picBgColor = myself.announcementReceivedPopup.color;
-        context.fillStyle = picBgColor.toString();
-        context.fillRect(0, 0, this.width(), this.height());
-        if (this.texture) {
-            this.drawTexture(this.texture);
-        }
-    };
+    // // close dialog button
+    // button = new PushButtonMorph(
+    //     this,
+    //     null,
+    //     (String.fromCharCode("0xf00d")),
+    //     null,
+    //     null,
+    //     null,
+    //     "redCircleIconButton"
+    // );
+    // button.setRight(this.announcementReceivedPopup.right() - 3);
+    // button.setTop(this.announcementReceivedPopup.top() + 2);
+    // button.action = function () { myself.announcementReceivedPopup.cancel(); };
+    // button.drawNew();
+    // button.fixLayout();
+    // this.announcementReceivedPopup.add(button);
 
-    successImage.setExtent(new Point(128, 128));
-    successImage.setCenter(this.announcementReceivedPopup.center());
-    successImage.setTop(this.announcementReceivedPopup.top() + 40);
-    this.announcementReceivedPopup.add(successImage);
+    // // add title
+    // this.announcementReceivedPopup.labelString = "You have received an announcement!";
+    // this.announcementReceivedPopup.createLabel();
 
-    // success message
-    txt = new TextMorph("You've received an announcement:\n " + announcement);
-    txt.setCenter(this.announcementReceivedPopup.center());
-    txt.setTop(successImage.bottom() + 20);
-    this.announcementReceivedPopup.add(txt);
-    txt.drawNew();
+    // // success image
+    // var successImage = new Morph();
+    // successImage.texture = 'images/notification.png';
+    // successImage.drawNew = function () {
+    //     this.image = newCanvas(this.extent());
+    //     var context = this.image.getContext('2d');
+    //     var picBgColor = myself.announcementReceivedPopup.color;
+    //     context.fillStyle = picBgColor.toString();
+    //     context.fillRect(0, 0, this.width(), this.height());
+    //     if (this.texture) {
+    //         this.drawTexture(this.texture);
+    //     }
+    // };
 
-    // "got it!" button, closes the dialog.
-    okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
-    okButton.setCenter(this.announcementReceivedPopup.center());
-    okButton.setBottom(this.announcementReceivedPopup.bottom() - 10);
-    okButton.action = function() {
-        console.log("Announcement box closing...");
-        var socketData = {
-            'announcementId': announcementId
-        };
-        myself.sharer.socket.emit('ANNOUNCE_SHAREBOX_CLOSE', socketData);
-        console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX_CLOSE: " + JSON.stringify(socketData));
-        myself.announcementReceivedPopup.cancel();
-    };
-    this.announcementReceivedPopup.add(okButton);
+    // successImage.setExtent(new Point(128, 128));
+    // successImage.setCenter(this.announcementReceivedPopup.center());
+    // successImage.setTop(this.announcementReceivedPopup.top() + 40);
+    // this.announcementReceivedPopup.add(successImage);
 
-    // popup
-    this.announcementReceivedPopup.drawNew();
-    this.announcementReceivedPopup.fixLayout();
-    this.announcementReceivedPopup.popUp(world);
+    // // success message
+    // txt = new TextMorph("You've received an announcement:\n " + announcement);
+    // txt.setCenter(this.announcementReceivedPopup.center());
+    // txt.setTop(successImage.bottom() + 20);
+    // this.announcementReceivedPopup.add(txt);
+    // txt.drawNew();
+
+    // // "got it!" button, closes the dialog.
+    // okButton = new PushButtonMorph(null, null, "Got it!", null, null, null, "green");
+    // okButton.setCenter(this.announcementReceivedPopup.center());
+    // okButton.setBottom(this.announcementReceivedPopup.bottom() - 10);
+    // okButton.action = function() {
+    //     console.log("Announcement box closing...");
+    //     var socketData = {
+    //         'announcementId': announcementId
+    //     };
+    //     myself.sharer.socket.emit('ANNOUNCE_SHAREBOX_CLOSE', socketData);
+    //     console.log("[SOCKET-SEND] ANNOUNCE_SHAREBOX_CLOSE: " + JSON.stringify(socketData));
+    //     myself.announcementReceivedPopup.cancel();
+    // };
+    // this.announcementReceivedPopup.add(okButton);
+
+    // // popup
+    // this.announcementReceivedPopup.drawNew();
+    // this.announcementReceivedPopup.fixLayout();
+    // this.announcementReceivedPopup.popUp(world);
 
 };
 
